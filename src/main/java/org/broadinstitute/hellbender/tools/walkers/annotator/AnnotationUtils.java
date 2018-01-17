@@ -17,6 +17,9 @@ public final class AnnotationUtils {
 
     public static final String LIST_DELIMITER = ",";
 
+    public static final String AS_SPLIT_REGEX = "\\|"; //String.split takes a regex, so we need to escape the pipe
+    public static final String PRINT_DELIM = "|";
+
     /**
      * Helper function to parse the list into the annotation string
      * @param valueList the ArrayList returned from StrandBiasBySample.annotate()

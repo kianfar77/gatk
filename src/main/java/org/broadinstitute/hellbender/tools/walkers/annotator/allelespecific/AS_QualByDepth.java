@@ -14,7 +14,6 @@ import org.broadinstitute.hellbender.utils.MathUtils;
 import org.broadinstitute.hellbender.utils.genotyper.ReadLikelihoods;
 import org.broadinstitute.hellbender.utils.help.HelpConstants;
 import org.broadinstitute.hellbender.utils.variant.GATKVCFConstants;
-import org.broadinstitute.hellbender.utils.variant.GATKVCFHeaderLines;
 
 import java.util.*;
 
@@ -51,7 +50,7 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
     public List<String> getKeyNames() { return Arrays.asList(GATKVCFConstants.AS_QUAL_BY_DEPTH_KEY); }
 
     @Override
-    public String getRawKeyName() { return GATKVCFConstants.AS_QUAL_KEY; }
+    public String getRawKeyName() { return GATKVCFConstants.AS_QUAL_APPROX;} //GATKVCFConstants.AS_QUAL_KEY; }
 
 
     @Override
@@ -108,7 +107,7 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
     @Override
     public Map<String, Object> finalizeRawData(VariantContext vc, VariantContext originalVC) {
         //we need to use the AS_QUAL value that was added to the VC by the GenotypingEngine
-        if ( !vc.hasAttribute(GATKVCFConstants.AS_QUAL_KEY) ) {
+        if ( !vc.hasAttribute(GATKVCFConstants.AS_QUAL_KEY) && !vc.hasAttribute(GATKVCFConstants.AS_RAW_QUAL_APPROX_KEY)) {
             return null;
         }
 
@@ -122,21 +121,34 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
             return null;
         }
 
-        //Parse the VC's allele-specific qual values
-        List<Object> alleleQualObjList = vc.getAttributeAsList(GATKVCFConstants.AS_QUAL_KEY);
-        if (alleleQualObjList.size() != vc.getNAlleles() -1) {
-            throw new IllegalStateException("Number of AS_QUAL values doesn't match the number of alternate alleles.");
-        }
         List<Double> alleleQualList = new ArrayList<>();
-        for (final Object obj : alleleQualObjList) {
-            alleleQualList.add(Double.parseDouble(obj.toString()));
+        if (vc.hasAttribute(GATKVCFConstants.AS_QUAL_KEY)) {
+            //Parse the VC's allele-specific qual values
+            List<Object> alleleQualObjList = vc.getAttributeAsList(GATKVCFConstants.AS_QUAL_KEY);
+            if (alleleQualObjList.size() != vc.getNAlleles() - 1) {
+                throw new IllegalStateException("Number of AS_QUAL values doesn't match the number of alternate alleles.");
+            }
+            for (final Object obj : alleleQualObjList) {
+                alleleQualList.add(Double.parseDouble(obj.toString()));
+            }
         }
+        else if (vc.hasAttribute(GATKVCFConstants.AS_RAW_QUAL_APPROX_KEY)) {
+            String asQuals = vc.getAttributeAsString(GATKVCFConstants.AS_RAW_QUAL_APPROX_KEY, "").replaceAll("\\[\\]\\s","");
+            String[] values = asQuals.split(AnnotationUtils.AS_SPLIT_REGEX);
+            if (values.length != vc.getNAlleles()+1) {  //plus one because the non-ref place holder is still around
+                throw new IllegalStateException("Number of AS_QUALapprox values doesn't match the number of alleles in the variant context.");
+            }
+            for (int i = 1; i < vc.getNAlleles(); i++) {
+                alleleQualList.add(Double.parseDouble(values[i]));
+            }
+        }
+
 
         // Don't normalize indel length for AS_QD because it will only be called from GenotypeGVCFs, never UG
         List<Double> QDlist = new ArrayList<>();
         double refDepth = (double)standardDepth.get(0);
         for (int i = 0; i < alleleQualList.size(); i++) {
-            double AS_QD = -10.0 * alleleQualList.get(i) / ((double)standardDepth.get(i+1) + refDepth); //+1 to skip the reference field of the AD, add ref counts to each to match biallelic case
+            double AS_QD = alleleQualList.get(i) / ((double)standardDepth.get(i+1) + refDepth); //+1 to skip the reference field of the AD, add ref counts to each to match biallelic case
             // Hack: see note in the fixTooHighQD method below
             AS_QD = QualByDepth.fixTooHighQD(AS_QD);
             QDlist.add(AS_QD);
