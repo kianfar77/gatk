@@ -48,7 +48,7 @@ public final class ReadLikelihoodsUnitTest {
         final Random rnd = Utils.getRandomGenerator();
         final double[][][] likelihoods = new double[samples.length][alleles.length][];
         for (int s = 0; s < likelihoods.length; s++) {
-            final LikelihoodMatrix<Allele> sampleLikelihoods = result.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> sampleLikelihoods = result.sampleMatrix(s);
             for (int a = 0; a < likelihoods[s].length; a++) {
                 likelihoods[s][a] = new double[result.sampleReadCount(s)];
                 for (int r = 0; r < likelihoods[s][a].length; r++)
@@ -67,7 +67,7 @@ public final class ReadLikelihoodsUnitTest {
         final Allele refAllele = refIndex >= 0 ? original.getAllele(refIndex) : null;
         for (int s = 0; s < samples.length; s++) {
             final int sampleReadCount = original.sampleReadCount(s);
-            final LikelihoodMatrix<Allele> sampleMatrix = original.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> sampleMatrix = original.sampleMatrix(s);
             final double[] bestLkArray = new double[sampleReadCount];
             final int[] bestIndexArray = new int[sampleReadCount];
             final double[] confidenceArray = new double[sampleReadCount];
@@ -113,7 +113,7 @@ public final class ReadLikelihoodsUnitTest {
         final int numberOfAlleles = alleles.length;
         for (int s = 0; s < samples.length; s++) {
             final int sampleReadCount = original.sampleReadCount(s);
-            final LikelihoodMatrix<Allele> sampleMatrix = original.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> sampleMatrix = original.sampleMatrix(s);
             for (int r = 0; r < sampleReadCount; r++) {
                 int bestindexOfAllele = -1;
                 double bestAlleleLk = Double.NEGATIVE_INFINITY;
@@ -165,8 +165,8 @@ public final class ReadLikelihoodsUnitTest {
             final int oldSampleReadCount = original.sampleReadCount(s);
             final int newSampleReadCount = result.sampleReadCount(s);
             Assert.assertEquals(newSampleReadCount, (oldSampleReadCount + 1) / 2);
-            final LikelihoodMatrix<Allele> newSampleMatrix = result.sampleMatrix(s);
-            final LikelihoodMatrix<Allele> oldSampleMatrix = original.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> newSampleMatrix = result.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> oldSampleMatrix = original.sampleMatrix(s);
             for (int r = 0 ; r < newSampleReadCount; r++) {
                 Assert.assertEquals(original.readIndex(s, result.sampleReads(s).get(r)), r * 2);
                 for (int a = 0; a < alleles.length; a++) {
@@ -187,7 +187,7 @@ public final class ReadLikelihoodsUnitTest {
         for (int s = 0; s < samples.length ; s++)
             for (int a = 0; a < alleles.length; a++) {
                 newLikelihoods[s][a] = new double[(original.sampleReadCount(s) + 1) / 2];
-                final LikelihoodMatrix<Allele> sampleMatrix = original.sampleMatrix(s);
+                final LikelihoodMatrix<GATKRead, Allele> sampleMatrix = original.sampleMatrix(s);
                 for (int r = 0; r < newLikelihoods[s][a].length; r++) {
                     Assert.assertEquals(result.readIndex(s, sampleMatrix.getRead(r << 1)), r);
                     newLikelihoods[s][a][r] = sampleMatrix.get(a, r << 1);
@@ -208,8 +208,8 @@ public final class ReadLikelihoodsUnitTest {
             final List<Allele> oldAlleles = newToOldAlleleMapping.get(marginalized.getAllele(a));
             Assert.assertNotNull(oldAlleles);
             for (int s = 0; s < samples.length; s++) {
-                final LikelihoodMatrix<Allele> oldSmapleLikelihoods = original.sampleMatrix(s);
-                final LikelihoodMatrix<Allele> sampleLikelihoods = marginalized.sampleMatrix(s);
+                final LikelihoodMatrix<GATKRead, Allele> oldSmapleLikelihoods = original.sampleMatrix(s);
+                final LikelihoodMatrix<GATKRead, Allele> sampleLikelihoods = marginalized.sampleMatrix(s);
                 final int sampleReadCount = sampleLikelihoods.numberOfReads();
                 final int oldSampleReadCount = oldSmapleLikelihoods.numberOfReads();
                 Assert.assertEquals(sampleReadCount, (oldSampleReadCount + 1) / 2);
@@ -235,8 +235,8 @@ public final class ReadLikelihoodsUnitTest {
             final List<Allele> oldAlleles = newToOldAlleleMapping.get(marginalized.getAllele(a));
             Assert.assertNotNull(oldAlleles);
             for (int s = 0; s < samples.length; s++) {
-                final LikelihoodMatrix<Allele> oldSmapleLikelihoods = original.sampleMatrix(s);
-                final LikelihoodMatrix<Allele> sampleLikelihoods = marginalized.sampleMatrix(s);
+                final LikelihoodMatrix<GATKRead, Allele> oldSmapleLikelihoods = original.sampleMatrix(s);
+                final LikelihoodMatrix<GATKRead, Allele> sampleLikelihoods = marginalized.sampleMatrix(s);
                 final int sampleReadCount = sampleLikelihoods.numberOfReads();
                 final int oldSampleReadCount = oldSmapleLikelihoods.numberOfReads();
                 Assert.assertEquals(oldSampleReadCount, sampleReadCount);
@@ -584,7 +584,7 @@ public final class ReadLikelihoodsUnitTest {
         int expectedLikelihoodsSet = 0;
         for (int s = 0; s < numberOfSamples; s++) {
             expectedLikelihoodsSet += readCounts[s] * numberOfAlleles;
-            final LikelihoodMatrix<Allele> matrix = subject.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> matrix = subject.sampleMatrix(s);
             final int readCount = matrix.numberOfReads();
             for (int a = 0; a < numberOfAlleles; a++)
                 for (int r = 0; r < readCount; r++)  {
@@ -609,7 +609,7 @@ public final class ReadLikelihoodsUnitTest {
                                              final Map<String,List<GATKRead>> sampleToReads, ReadLikelihoods<Allele> result, final double expectedLik) {
         for (final String sample : samples.asListOfSamples()) {
             final int indexOfSample = result.indexOfSample(sample);
-            final LikelihoodMatrix<Allele> likelihoodMatrix = result.sampleMatrix(indexOfSample);
+            final LikelihoodMatrix<GATKRead, Allele> likelihoodMatrix = result.sampleMatrix(indexOfSample);
             final int sampleReadCount = sampleToReads.get(sample).size();
             final List<GATKRead> reads = sampleToReads.get(sample);
             Assert.assertEquals(likelihoodMatrix.numberOfAlleles(), alleles.numberOfAlleles());

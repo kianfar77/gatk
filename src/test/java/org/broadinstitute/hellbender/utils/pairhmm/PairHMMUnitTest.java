@@ -532,8 +532,8 @@ public final class PairHMMUnitTest extends GATKBaseTest {
 
     }
 
-    private LikelihoodMatrix<Haplotype> matrix(final List<Haplotype> haplotypes) {
-        return new LikelihoodMatrix<Haplotype>() {
+    private LikelihoodMatrix<GATKRead, Haplotype> matrix(final List<Haplotype> haplotypes) {
+        return new LikelihoodMatrix<GATKRead, Haplotype>() {
             @Override
             public List<GATKRead> reads() {
                 throw new UnsupportedOperationException();

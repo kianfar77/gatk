@@ -9,13 +9,13 @@ import java.util.List;
  * Likelihood matrix between a set of alleles and reads.
  * @param <A> the allele-type.
  */
-public interface LikelihoodMatrix<A extends Allele> extends AlleleList<A> {
+public interface LikelihoodMatrix<EVIDENCE,A extends Allele> extends AlleleList<A> {
 
     /**
      * List of reads in the matrix sorted by their index therein.
      * @return never {@code null}.
      */
-    public List<GATKRead> reads();
+    public List<EVIDENCE> reads();
 
     /**
      * List of alleles in the matrix sorted by their index in the collection.
@@ -70,7 +70,7 @@ public interface LikelihoodMatrix<A extends Allele> extends AlleleList<A> {
      * @return -1 if there is not such a read in the matrix, otherwise its index
      *    which is 0 or greater.
      */
-    public int indexOfRead(final GATKRead read);
+    public int indexOfRead(final EVIDENCE read);
 
     /**
      * Number of allele in the matrix.
@@ -104,7 +104,7 @@ public interface LikelihoodMatrix<A extends Allele> extends AlleleList<A> {
      * @throws IllegalArgumentException if {@code readIndex} is not a valid read index.
      * @return never {@code null}.
      */
-    public GATKRead getRead(final int readIndex);
+    public EVIDENCE getRead(final int readIndex);
 
 
     /**

@@ -194,7 +194,7 @@ public final class PairHMMLikelihoodCalculationEngineUnitTest extends GATKBaseTe
 
 
             final ReadLikelihoods<Haplotype> likes = lce.computeReadLikelihoods(assemblyResultSet, samples, perSampleReadList);
-            final LikelihoodMatrix<Haplotype> mtx = likes.sampleMatrix(0);
+            final LikelihoodMatrix<GATKRead, Haplotype> mtx = likes.sampleMatrix(0);
 
             Assert.assertEquals(mtx.numberOfAlleles(), 2);
             Assert.assertEquals(mtx.numberOfReads(), 1);

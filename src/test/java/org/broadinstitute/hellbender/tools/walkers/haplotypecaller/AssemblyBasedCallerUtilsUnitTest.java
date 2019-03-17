@@ -141,7 +141,7 @@ public class AssemblyBasedCallerUtilsUnitTest extends GATKBaseTest {
         final SampleList samples = new IndexedSampleList("sample1");
 
         final ReadLikelihoods<Haplotype> readLikelihoods = new ReadLikelihoods<>(samples, haplotypes, sampleReadMap);
-        LikelihoodMatrix<Haplotype> sampleMatrix = readLikelihoods.sampleMatrix(0);
+        LikelihoodMatrix<GATKRead, Haplotype> sampleMatrix = readLikelihoods.sampleMatrix(0);
         for (GATKRead read : reads) {
             //set likelihoods, -1.0 for haplotype read assigned to, -8.0 for all other haplotypes
             final int readIndex = sampleMatrix.indexOfRead(read);
@@ -282,7 +282,7 @@ public class AssemblyBasedCallerUtilsUnitTest extends GATKBaseTest {
             final SampleList samples = new IndexedSampleList("sample1");
             final AlleleList<Allele> alleles = new IndexedAlleleList<>(vc.getAlleles());
             final ReadLikelihoods<Allele> readLikelihoods = new ReadLikelihoods<>(samples, alleles, sampleReadMap);
-            LikelihoodMatrix<Allele> sampleMatrix = readLikelihoods.sampleMatrix(0);
+            LikelihoodMatrix<GATKRead, Allele> sampleMatrix = readLikelihoods.sampleMatrix(0);
             List<String> readAttributeList = new ArrayList<>();
             for (GATKRead read : vcReadsMap.get(vc)) {
                 final int readIndex = sampleMatrix.indexOfRead(read);

@@ -205,7 +205,7 @@ public class QualByDepthUnitTest extends GATKBaseTest {
         final ReadLikelihoods<Allele> likelihoods = new ReadLikelihoods<>(sampleList, alleleList, readsBySample);
 
         // modify likelihoods in-place
-        final LikelihoodMatrix<Allele> matrix = likelihoods.sampleMatrix(0);
+        final LikelihoodMatrix<GATKRead, Allele> matrix = likelihoods.sampleMatrix(0);
 
         for (int n = 0; n < depth; n++) {
             matrix.set(0, n, -1.0);

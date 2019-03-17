@@ -59,7 +59,7 @@ public final class LikelihoodRankSumTestUnitTest extends GATKBaseTest {
                 ArtificialAnnotationUtils.makeLikelihoods(sample1, refReads, altReads, -100.0, -100.0, REF, ALT);
 
         // modify "good" likelihoods manually
-        final LikelihoodMatrix<Allele> matrix = likelihoods.sampleMatrix(0);
+        final LikelihoodMatrix<GATKRead, Allele> matrix = likelihoods.sampleMatrix(0);
         matrix.set(0, 0, refBestAlleleLL[0]);
         matrix.set(0, 1, refBestAlleleLL[1]);
         matrix.set(1, 2, altBestAlleleLL[0]);

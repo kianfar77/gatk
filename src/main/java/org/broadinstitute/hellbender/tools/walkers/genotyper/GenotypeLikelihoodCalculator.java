@@ -251,7 +251,7 @@ public final class GenotypeLikelihoodCalculator {
      *
      * @return never {@code null}.
      */
-    public <A extends Allele> GenotypeLikelihoods genotypeLikelihoods(final LikelihoodMatrix<A> likelihoods) {
+    public <EVIDENCE, A extends Allele> GenotypeLikelihoods genotypeLikelihoods(final LikelihoodMatrix<EVIDENCE, A> likelihoods) {
         Utils.nonNull(likelihoods);
         Utils.validateArg(likelihoods.numberOfAlleles() == alleleCount, "mismatch between allele list and alleleCount");
         final int readCount = likelihoods.numberOfReads();
@@ -409,7 +409,7 @@ public final class GenotypeLikelihoodCalculator {
      *
      * @return never {@code null}.
      */
-    private <A extends Allele> double[] readLikelihoodComponentsByAlleleCount(final LikelihoodMatrix<A> likelihoods) {
+    private <EVIDENCE, A extends Allele> double[] readLikelihoodComponentsByAlleleCount(final LikelihoodMatrix<EVIDENCE, A> likelihoods) {
         final int readCount = likelihoods.numberOfReads();
         final int alleleDataSize = readCount * (ploidy + 1);
 

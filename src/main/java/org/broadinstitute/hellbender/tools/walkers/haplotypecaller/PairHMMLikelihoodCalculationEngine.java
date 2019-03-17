@@ -242,7 +242,7 @@ public final class PairHMMLikelihoodCalculationEngine implements ReadLikelihoodC
         pairHMM.initialize(haplotypes, perSampleReadList, readMaxLength, haplotypeMaxLength);
     }
 
-    private void computeReadLikelihoods(final LikelihoodMatrix<Haplotype> likelihoods) {
+    private void computeReadLikelihoods(final LikelihoodMatrix<GATKRead, Haplotype> likelihoods) {
         // Modify the read qualities by applying the PCR error model and capping the minimum base,insertion,deletion qualities
         final List<GATKRead> processedReads = modifyReadQualities(likelihoods.reads());
 
@@ -302,7 +302,7 @@ public final class PairHMMLikelihoodCalculationEngine implements ReadLikelihoodC
         return result;
     }
 
-    private void writeDebugLikelihoods(final LikelihoodMatrix<Haplotype> likelihoods) {
+    private void writeDebugLikelihoods(final LikelihoodMatrix<GATKRead, Haplotype> likelihoods) {
         if (!writeLikelihoodsToFile || likelihoodsStream == null) {
             return;
         }

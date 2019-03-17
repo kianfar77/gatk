@@ -73,7 +73,7 @@ public class ArtificialAnnotationUtils {
         final List<GATKRead> reads = ListUtils.union(ListUtils.union(refReads, altReads), uninformativeReads);
         final ReadLikelihoods<Allele> likelihoods = initializeReadLikelihoods(sample, new IndexedAlleleList<>(Arrays.asList(refAllele, altAllele)), reads);
 
-        final LikelihoodMatrix<Allele> matrix = likelihoods.sampleMatrix(0);
+        final LikelihoodMatrix<GATKRead, Allele> matrix = likelihoods.sampleMatrix(0);
         int readIndex = 0;
         for (int i = 0; i < refReads.size(); i++) {
             matrix.set(0, readIndex, MATCH_LIKELIHOOD);
@@ -111,7 +111,7 @@ public class ArtificialAnnotationUtils {
         final List<GATKRead> reads = ListUtils.union(ListUtils.union(refReads, ListUtils.union(alt1Reads,alt2Reads)), uninformativeReads);
         final ReadLikelihoods<Allele> likelihoods = initializeReadLikelihoods(sample, new IndexedAlleleList<>(Arrays.asList(refAllele, alt1Allele, alt2Allele)), reads);
 
-        final LikelihoodMatrix<Allele> matrix = likelihoods.sampleMatrix(0);
+        final LikelihoodMatrix<GATKRead, Allele> matrix = likelihoods.sampleMatrix(0);
         int readIndex = 0;
         for (int i = 0; i < refReads.size(); i++) {
             matrix.set(0, readIndex, MATCH_LIKELIHOOD);

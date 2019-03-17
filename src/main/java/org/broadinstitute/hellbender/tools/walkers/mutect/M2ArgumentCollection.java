@@ -257,4 +257,8 @@ public class M2ArgumentCollection extends AssemblyBasedCallerArgumentCollection 
     @Advanced
     @Argument(fullName = "genotype-filtered-alleles", doc = "Whether to force genotype even filtered alleles", optional = true)
     public boolean genotypeFilteredAlleles = false;
+
+    @Advanced
+    @Argument(fullName = "disregard-read-pairing", doc = "Ignore read pairing, allowing paired reads to support different haplotypes.  Useful for validations with ill-designed synthetic data.", optional = true)
+    public boolean disregardReadPairing = false;
 }

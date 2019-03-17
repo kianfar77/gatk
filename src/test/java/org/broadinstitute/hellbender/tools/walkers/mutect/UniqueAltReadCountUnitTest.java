@@ -97,7 +97,7 @@ public class UniqueAltReadCountUnitTest {
 
         final ReadLikelihoods<Allele> likelihoods = new ReadLikelihoods<>(sampleList, alleleList, readMap);
         final int sampleIndex = 0;
-        final LikelihoodMatrix<Allele> matrix = likelihoods.sampleMatrix(sampleIndex);
+        final LikelihoodMatrix<GATKRead, Allele> matrix = likelihoods.sampleMatrix(sampleIndex);
 
         final double logLikelihoodOfBestAllele = 10.0;
         final int refAlleleIndex = 0;

@@ -25,7 +25,7 @@ public final class ReadLikelihoodsUnitTester {
         }
         final ReadLikelihoods<Allele> likelihoods = new ReadLikelihoods<>(sampleList,alleleList, sampleToReads);
         for (int s = 0; s < sampleCount; s++) {
-            final LikelihoodMatrix<Allele> sampleLikelihoods = likelihoods.sampleMatrix(s);
+            final LikelihoodMatrix<GATKRead, Allele> sampleLikelihoods = likelihoods.sampleMatrix(s);
             for (int a = 0; a < alleleCount; a++)
                 for (int r = 0; r < readCount[s]; r++)
                     sampleLikelihoods.set(a, r, testLikelihood(s, a, r));

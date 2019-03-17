@@ -11,10 +11,7 @@ import org.broadinstitute.hellbender.utils.pileup.PileupElement;
 import org.broadinstitute.hellbender.utils.pileup.ReadPileup;
 import org.broadinstitute.hellbender.utils.read.GATKRead;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Dummy Read-Likelihood container that computes partial likelihoods based on the read pileups for snps.
@@ -48,7 +45,7 @@ public class UnfilledReadsLikelihoods<A extends Allele> extends ReadLikelihoods<
     @SuppressWarnings({"unchecked", "rawtypes"})
     private UnfilledReadsLikelihoods(final AlleleList alleles,
                             final SampleList samples,
-                            final GATKRead[][] readsBySampleIndex,
+                            final List<List<GATKRead>> readsBySampleIndex,
                             final Object2IntMap<GATKRead>[] readIndex,
                             final double[][][] values) {
        super(alleles, samples, readsBySampleIndex, readIndex, values);
@@ -85,7 +82,7 @@ public class UnfilledReadsLikelihoods<A extends Allele> extends ReadLikelihoods<
      * Create an independent copy of this read-likelihoods collection
      */
     @Override
-    ReadLikelihoods<A> copy() {
+    public ReadLikelihoods<A> copy() {
 
         final int sampleCount = samples.numberOfSamples();
         final int alleleCount = alleles.numberOfAlleles();
@@ -94,10 +91,10 @@ public class UnfilledReadsLikelihoods<A extends Allele> extends ReadLikelihoods<
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         final Object2IntMap<GATKRead>[] newReadIndexBySampleIndex = new Object2IntMap[sampleCount];
-        final GATKRead[][] newReadsBySampleIndex = new GATKRead[sampleCount][];
+        final List<List<GATKRead>> newReadsBySampleIndex = new ArrayList<>(sampleCount);
 
         for (int s = 0; s < sampleCount; s++) {
-            newReadsBySampleIndex[s] = readsBySampleIndex[s].clone();
+            newReadsBySampleIndex.add(new ArrayList<>(readsBySampleIndex.get(s)));
             for (int a = 0; a < alleleCount; a++) {
                 newLikelihoodValues[s][a] = valuesBySampleIndex[s][a].clone();
             }
