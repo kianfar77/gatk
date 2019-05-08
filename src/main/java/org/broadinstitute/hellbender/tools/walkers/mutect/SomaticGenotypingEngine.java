@@ -92,7 +92,7 @@ public class SomaticGenotypingEngine {
             }
         }
 
-        final MoleculeLikelihoods<Fragment, Haplotype> logFragmentLikelihoods = logReadLikelihoods.combineMates();
+        final LinkedReadsLikelihoods<Fragment, Haplotype> logFragmentLikelihoods = logReadLikelihoods.combineMates();
         final double logGlobalReadMismappingRate = MTAC.likelihoodArgs.phredScaledGlobalReadMismappingRate < 0 ? - Double.MAX_VALUE
                 : NaturalLogUtils.qualToLogErrorProb(MTAC.likelihoodArgs.phredScaledGlobalReadMismappingRate);
         logFragmentLikelihoods.normalizeLikelihoods(logGlobalReadMismappingRate);
@@ -107,7 +107,7 @@ public class SomaticGenotypingEngine {
 
             // converting ReadLikelihoods<Haplotype> to ReadLikelihoods<Allele>
             final Map<Allele, List<Haplotype>> alleleMapper = AssemblyBasedCallerUtils.createAlleleMapper(mergedVC, loc, haplotypes, null);
-            final MoleculeLikelihoods<Fragment, Allele> logLikelihoods = logFragmentLikelihoods.marginalize(alleleMapper,
+            final LinkedReadsLikelihoods<Fragment, Allele> logLikelihoods = logFragmentLikelihoods.marginalize(alleleMapper,
                     new SimpleInterval(mergedVC).expandWithinContig(HaplotypeCallerGenotypingEngine.ALLELE_EXTENSION, header.getSequenceDictionary()));
 
             if (emitRefConf) {
@@ -174,7 +174,7 @@ public class SomaticGenotypingEngine {
             final List<Allele> untrimmedAlleles = call.getAlleles();
             final Map<Allele, List<Allele>> trimmedToUntrimmedAlleleMap = IntStream.range(0, trimmedCall.getNAlleles()).boxed()
                     .collect(Collectors.toMap(n -> trimmedAlleles.get(n), n -> Arrays.asList(untrimmedAlleles.get(n))));
-            final MoleculeLikelihoods<Fragment, Allele> trimmedLikelihoods = logLikelihoods.marginalize(trimmedToUntrimmedAlleleMap);
+            final LinkedReadsLikelihoods<Fragment, Allele> trimmedLikelihoods = logLikelihoods.marginalize(trimmedToUntrimmedAlleleMap);
 
             // ReadLikelihoods for annotation only
             final ReadLikelihoods<Allele> logReadAlleleLikelihoods = logReadLikelihoods.marginalize(alleleMapper,
@@ -254,7 +254,7 @@ public class SomaticGenotypingEngine {
         return lods;
     }
 
-    private <EVIDENCE extends Locatable> void addGenotypes(final MoleculeLikelihoods<EVIDENCE, Allele> logLikelihoods,
+    private <EVIDENCE extends Locatable> void addGenotypes(final LinkedReadsLikelihoods<EVIDENCE, Allele> logLikelihoods,
                               final List<Allele> allelesToEmit,
                               final VariantContextBuilder callVcb) {
         final List<Genotype> genotypes = IntStream.range(0, logLikelihoods.numberOfSamples()).mapToObj(n -> {
@@ -328,7 +328,7 @@ public class SomaticGenotypingEngine {
 
     private static <EVIDENCE extends Locatable> LikelihoodMatrix<EVIDENCE, Allele> combinedLikelihoodMatrix(final List<LikelihoodMatrix<EVIDENCE, Allele>> matrices, final AlleleList<Allele> alleleList) {
         final List<EVIDENCE> reads = matrices.stream().flatMap(m -> m.reads().stream()).collect(Collectors.toList());
-        final MoleculeLikelihoods<EVIDENCE, Allele> combinedLikelihoods = new MoleculeLikelihoods<>(SampleList.singletonSampleList("COMBINED"), alleleList, ImmutableMap.of("COMBINED", reads));
+        final LinkedReadsLikelihoods<EVIDENCE, Allele> combinedLikelihoods = new LinkedReadsLikelihoods<>(SampleList.singletonSampleList("COMBINED"), alleleList, ImmutableMap.of("COMBINED", reads));
 
         int combinedReadIndex = 0;
         final LikelihoodMatrix<EVIDENCE, Allele> result = combinedLikelihoods.sampleMatrix(0);

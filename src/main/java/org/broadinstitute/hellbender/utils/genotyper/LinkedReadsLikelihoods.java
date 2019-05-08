@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
  *
  * @author Valentin Ruano-Rubio &lt;valentin@broadinstitute.org&gt;
  */
-public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> implements SampleList, AlleleList<A> {
+public class LinkedReadsLikelihoods<EVIDENCE extends Locatable, A extends Allele> implements SampleList, AlleleList<A> {
 
     public static final double LOG_10_INFORMATIVE_THRESHOLD = 0.2;
     public static final double NATURAL_LOG_INFORMATIVE_THRESHOLD = MathUtils.log10ToLog(LOG_10_INFORMATIVE_THRESHOLD);
@@ -124,9 +124,9 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
      *  or if they contain null values.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public MoleculeLikelihoods(final SampleList samples,
-                               final AlleleList<A> alleles,
-                               final Map<String, List<EVIDENCE>> reads) {
+    public LinkedReadsLikelihoods(final SampleList samples,
+                                  final AlleleList<A> alleles,
+                                  final Map<String, List<EVIDENCE>> reads) {
         Utils.nonNull(alleles, "allele list cannot be null");
         Utils.nonNull(samples, "sample list cannot be null");
         Utils.nonNull(reads, "read map cannot be null");
@@ -152,11 +152,11 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
 
     // Internally used constructor.
     @SuppressWarnings({"unchecked", "rawtypes"})
-    MoleculeLikelihoods(final AlleleList alleles,
-                        final SampleList samples,
-                        final List<List<EVIDENCE>> readsBySampleIndex,
-                        final Object2IntMap<EVIDENCE>[] readIndex,
-                        final double[][][] values) {
+    LinkedReadsLikelihoods(final AlleleList alleles,
+                           final SampleList samples,
+                           final List<List<EVIDENCE>> readsBySampleIndex,
+                           final Object2IntMap<EVIDENCE>[] readIndex,
+                           final double[][][] values) {
         this.samples = samples;
         this.alleles = alleles;
         this.readsBySampleIndex = readsBySampleIndex;
@@ -550,7 +550,7 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
      *  can have zero old alleles mapping nor two new alleles can make reference to the same old allele.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <B extends Allele> MoleculeLikelihoods<EVIDENCE, B> marginalize(final Map<B, List<A>> newToOldAlleleMap) {
+    public <B extends Allele> LinkedReadsLikelihoods<EVIDENCE, B> marginalize(final Map<B, List<A>> newToOldAlleleMap) {
         Utils.nonNull(newToOldAlleleMap);
 
         final B[] newAlleles = newToOldAlleleMap.keySet().toArray((B[]) new Allele[newToOldAlleleMap.size()]);
@@ -574,7 +574,7 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
         }
 
         // Finally we create the new read-likelihood
-        final MoleculeLikelihoods<EVIDENCE, B> result = new MoleculeLikelihoods<EVIDENCE, B>(
+        final LinkedReadsLikelihoods<EVIDENCE, B> result = new LinkedReadsLikelihoods<EVIDENCE, B>(
                 new IndexedAlleleList(newAlleles),
                 samples,
                 newReadsBySampleIndex,
@@ -600,7 +600,7 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
      *  or its values contain reference to non-existing alleles in this read-likelihood collection. Also no new allele
      *  can have zero old alleles mapping nor two new alleles can make reference to the same old allele.
      */
-    public <B extends Allele> MoleculeLikelihoods<EVIDENCE, B> marginalize(final Map<B, List<A>> newToOldAlleleMap, final Locatable overlap) {
+    public <B extends Allele> LinkedReadsLikelihoods<EVIDENCE, B> marginalize(final Map<B, List<A>> newToOldAlleleMap, final Locatable overlap) {
         Utils.nonNull(newToOldAlleleMap, "the input allele mapping cannot be null");
         if (overlap == null) {
             return marginalize(newToOldAlleleMap);
@@ -637,7 +637,7 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
         }
 
         // Finally we create the new read-likelihood
-        final MoleculeLikelihoods<EVIDENCE, B> result = new MoleculeLikelihoods<>(new IndexedAlleleList<>(newAlleles), samples,
+        final LinkedReadsLikelihoods<EVIDENCE, B> result = new LinkedReadsLikelihoods<>(new IndexedAlleleList<>(newAlleles), samples,
                 newReadsBySampleIndex,
                 newReadIndexBySampleIndex, newLikelihoodValues);
         result.isNaturalLog = isNaturalLog;
@@ -1180,7 +1180,7 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
 
         @Override
         public List<A> alleles() {
-            return MoleculeLikelihoods.this.alleles();
+            return LinkedReadsLikelihoods.this.alleles();
         }
 
         @Override
@@ -1200,13 +1200,13 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
         @Override
         public int indexOfAllele(final A allele) {
             Utils.nonNull(allele);
-            return MoleculeLikelihoods.this.indexOfAllele(allele);
+            return LinkedReadsLikelihoods.this.indexOfAllele(allele);
         }
 
         @Override
         public int indexOfRead(final EVIDENCE read) {
             Utils.nonNull(read);
-            return MoleculeLikelihoods.this.readIndex(sampleIndex, read);
+            return LinkedReadsLikelihoods.this.readIndex(sampleIndex, read);
         }
 
         @Override
@@ -1221,7 +1221,7 @@ public class MoleculeLikelihoods<EVIDENCE extends Locatable, A extends Allele> i
 
         @Override
         public A getAllele(final int alleleIndex) {
-            return MoleculeLikelihoods.this.getAllele(alleleIndex);
+            return LinkedReadsLikelihoods.this.getAllele(alleleIndex);
         }
 
         @Override

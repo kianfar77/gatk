@@ -6,7 +6,6 @@ import htsjdk.variant.variantcontext.Allele;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.broadinstitute.hellbender.exceptions.GATKException;
 import org.broadinstitute.hellbender.utils.IndexRange;
 import org.broadinstitute.hellbender.utils.MathUtils;
 import org.broadinstitute.hellbender.utils.Utils;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
  *
  * @author Valentin Ruano-Rubio &lt;valentin@broadinstitute.org&gt;
  */
-public class ReadLikelihoods<A extends Allele> extends MoleculeLikelihoods<GATKRead, A> {
+public class ReadLikelihoods<A extends Allele> extends LinkedReadsLikelihoods<GATKRead, A> {
     /**
      * Constructs a new read-likelihood collection.
      *
@@ -140,7 +139,7 @@ public class ReadLikelihoods<A extends Allele> extends MoleculeLikelihoods<GATKR
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public MoleculeLikelihoods<Fragment, A> combineMates() {
+    public LinkedReadsLikelihoods<Fragment, A> combineMates() {
         final int sampleCount = samples.numberOfSamples();
         final double[][][] newLikelihoodValues = new double[sampleCount][][];
         final int alleleCount = alleles.numberOfAlleles();
@@ -185,7 +184,7 @@ public class ReadLikelihoods<A extends Allele> extends MoleculeLikelihoods<GATKR
         }
 
         // Finally we create the new read-likelihood
-        return new MoleculeLikelihoods<Fragment, A>(
+        return new LinkedReadsLikelihoods<Fragment, A>(
                 alleles,
                 samples,
                 fragmentsBySampleIndex,
@@ -233,9 +232,9 @@ public class ReadLikelihoods<A extends Allele> extends MoleculeLikelihoods<GATKR
         return result;
     }
 
-    public ReadLikelihoods(final MoleculeLikelihoods<GATKRead, A> moleculeLikelihoods) {
-        this(moleculeLikelihoods.alleles, moleculeLikelihoods.samples, moleculeLikelihoods.readsBySampleIndex,
-                moleculeLikelihoods.readIndexBySampleIndex, moleculeLikelihoods.valuesBySampleIndex);
+    public ReadLikelihoods(final LinkedReadsLikelihoods<GATKRead, A> linkedReadsLikelihoods) {
+        this(linkedReadsLikelihoods.alleles, linkedReadsLikelihoods.samples, linkedReadsLikelihoods.readsBySampleIndex,
+                linkedReadsLikelihoods.readIndexBySampleIndex, linkedReadsLikelihoods.valuesBySampleIndex);
     }
 
     @Override
