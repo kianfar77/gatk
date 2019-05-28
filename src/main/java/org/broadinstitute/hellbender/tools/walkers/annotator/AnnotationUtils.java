@@ -39,7 +39,7 @@ public final class AnnotationUtils {
      * @return a comma-separated String
      */
     public static String encodeStringList( final List<String> stringList) {
-        return StringUtils.join(stringList, ",");
+        return StringUtils.join(stringList, LIST_DELIMITER);
     }
 
 }

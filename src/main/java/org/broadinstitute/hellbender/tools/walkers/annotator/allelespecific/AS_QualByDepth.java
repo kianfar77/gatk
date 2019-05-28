@@ -50,7 +50,7 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
     public List<String> getKeyNames() { return Arrays.asList(GATKVCFConstants.AS_QUAL_BY_DEPTH_KEY); }
 
     @Override
-    public String getRawKeyName() { return GATKVCFConstants.AS_QUAL_APPROX;} //GATKVCFConstants.AS_QUAL_KEY; }
+    public String getRawKeyName() { return GATKVCFConstants.AS_VARIANT_DEPTH_KEY;}
 
 
     @Override
@@ -116,7 +116,12 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
             return null;
         }
 
-        final List<Integer> standardDepth = getAlleleDepths(genotypes);
+        final List<Integer> standardDepth;
+        if (originalVC.hasAttribute(GATKVCFConstants.AS_VARIANT_DEPTH_KEY)) {
+            standardDepth = originalVC.getAttributeAsString(GATKVCFConstants.AS_VARIANT_DEPTH_KEY, "").split(AnnotationUtils.AS_SPLIT_REGEX);
+        } else {
+            standardDepth = getAlleleDepths(genotypes);
+        }
         if (standardDepth == null) { //all no-calls and homRefs
             return null;
         }
@@ -156,6 +161,8 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
 
         final Map<String, Object> map = new HashMap<>();
         map.put(getKeyNames().get(0), AnnotationUtils.encodeValueList(QDlist, "%.2f"));
+        //keep AS_QUALapprox for Gnarly Pipeline because we don't subset alts or output genotypes if there are more than 6 alts
+        map.put(GATKVCFConstants.AS_RAW_QUAL_APPROX_KEY, AnnotationUtils.encodeValueList(alleleQualList, "%f"));
         return map;
     }
 

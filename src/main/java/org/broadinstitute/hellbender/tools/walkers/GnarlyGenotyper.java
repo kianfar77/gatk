@@ -237,6 +237,7 @@ public final class GnarlyGenotyper extends VariantWalker {
         headerLines.add(GATKVCFHeaderLines.getInfoLine(GATKVCFConstants.FISHER_STRAND_KEY));
         headerLines.add(GATKVCFHeaderLines.getInfoLine(GATKVCFConstants.STRAND_ODDS_RATIO_KEY));
         headerLines.add(GATKVCFHeaderLines.getInfoLine(GATKVCFConstants.SB_TABLE_KEY));
+        headerLines.add(GATKVCFHeaderLines.getInfoLine(GATKVCFConstants.EXCESS_HET_KEY));
         headerLines.add(GATKVCFHeaderLines.getInfoLine(GATKVCFConstants.QUAL_BY_DEPTH_KEY));
         headerLines.add(VCFStandardHeaderLines.getInfoLine(VCFConstants.RMS_MAPPING_QUALITY_KEY));
         headerLines.add(VCFStandardHeaderLines.getInfoLine(VCFConstants.DEPTH_KEY));   // needed for gVCFs without DP tags
@@ -285,6 +286,7 @@ public final class GnarlyGenotyper extends VariantWalker {
         //return early if variant doesn't meet QUAL threshold
         if (!variant.hasAttribute(GATKVCFConstants.RAW_QUAL_APPROX_KEY)) {
             warning.warn("Variant will not be output because it is missing the " + GATKVCFConstants.RAW_QUAL_APPROX_KEY + "key assigned by the ReblockGVCFs tool -- if the input did come from ReblockGVCFs, check the GenomicsDB vidmap.json annotation info");
+            return;
         }
         final double QUALapprox = variant.getAttributeAsDouble(GATKVCFConstants.RAW_QUAL_APPROX_KEY, 0.0);
         //TODO: do we want to apply the indel prior to mixed sites?
@@ -306,7 +308,10 @@ public final class GnarlyGenotyper extends VariantWalker {
         final int variantDP = variant.getAttributeAsInt(GATKVCFConstants.VARIANT_DEPTH_KEY, 0);
         double QD = QUALapprox / (double)variantDP;
         vcfBuilder.attribute(GATKVCFConstants.QUAL_BY_DEPTH_KEY, QD).log10PError(QUALapprox/-10.0-Math.log10(sitePrior));
+        vcfBuilder.rmAttribute(GATKVCFConstants.RAW_QUAL_APPROX_KEY);
+        //TODO: AS_QUALapprox needs non-ref removed, delimiters fixed
 
+        //TODO: fix weird reflection logging?
         Reflections reflections = new Reflections("org.broadinstitute.hellbender.tools.walkers.annotator.allelespecific");
         final Set<Class<? extends InfoFieldAnnotation>> allASAnnotations = reflections.getSubTypesOf(InfoFieldAnnotation.class);
         allASAnnotations.addAll(reflections.getSubTypesOf(AS_StrandBiasTest.class));
@@ -374,6 +379,7 @@ public final class GnarlyGenotyper extends VariantWalker {
         gtCounts.set(0, refCount);
         Pair<Integer, Double> eh = ExcessHet.calculateEH(variant, new GenotypeCounts(gtCounts.get(0), gtCounts.get(1), gtCounts.get(2)), numCalledAlleles/2);
         vcfBuilder.attribute(GATKVCFConstants.EXCESS_HET_KEY, String.format("%.4f", eh.getRight()));
+        vcfBuilder.rmAttribute(GATKVCFConstants.RAW_GENOTYPE_COUNT_KEY);
         vcfBuilder.attribute(GATKVCFConstants.FISHER_STRAND_KEY, FisherStrand.makeValueObjectForAnnotation(FisherStrand.pValueForContingencyTable(StrandBiasTest.decodeSBBS(SBsum))));
         vcfBuilder.attribute(GATKVCFConstants.STRAND_ODDS_RATIO_KEY, StrandOddsRatio.formattedValue(StrandOddsRatio.calculateSOR(StrandBiasTest.decodeSBBS(SBsum))));
         annotationDBBuilder.attribute(GATKVCFConstants.SB_TABLE_KEY, SBsum);
@@ -418,7 +424,7 @@ public final class GnarlyGenotyper extends VariantWalker {
         if (variant.hasAttribute(GATKVCFConstants.AS_RAW_QUAL_APPROX_KEY) && variant.hasAttribute(GATKVCFConstants.AS_VARIANT_DEPTH_KEY)) {
             List<Integer> dps = Arrays.asList(variant.getAttributeAsString(GATKVCFConstants.AS_VARIANT_DEPTH_KEY, "")
                     .split(AnnotationUtils.AS_SPLIT_REGEX)).stream().map(Integer::parseInt).collect(Collectors.toList());
-            
+        //TODO: do something with this value!
         }
 
         annotationDBBuilder.alleles(targetAlleles);

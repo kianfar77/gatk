@@ -239,7 +239,8 @@ public final class RMSMappingQuality extends InfoFieldAnnotation implements Stan
                 final double rms = Math.sqrt(squareSum / (double)numOfReads);
                 final String finalizedRMSMAppingQuality = formattedValue(rms);
                 return new VariantContextBuilder(vc)
-                        .rmAttribute(getDeprecatedRawKeyName())
+                        .rmAttribute(getDeprecatedRawKeyName())  //some old GVCFs that were reblocked for gnomAD have both
+                        .rmAttribute(getRawKeyName())
                         .attribute(getKeyNames().get(0), finalizedRMSMAppingQuality)
                         .make();
             }
@@ -249,6 +250,7 @@ public final class RMSMappingQuality extends InfoFieldAnnotation implements Stan
             final double rms = Math.sqrt(SSQMQandDP.get(SUM_OF_SQUARES_INDEX) / (double)SSQMQandDP.get(TOTAL_DEPTH_INDEX));
             final String finalizedRMSMAppingQuality = formattedValue(rms);
             return new VariantContextBuilder(vc)
+                    .rmAttribute(getDeprecatedRawKeyName())   //some old GVCFs that were reblocked for gnomAD have both
                     .rmAttribute(getRawKeyName())
                     .attribute(getKeyNames().get(0), finalizedRMSMAppingQuality)
                     .make();
