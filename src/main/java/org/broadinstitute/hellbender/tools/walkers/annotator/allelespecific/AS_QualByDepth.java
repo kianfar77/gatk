@@ -16,6 +16,7 @@ import org.broadinstitute.hellbender.utils.help.HelpConstants;
 import org.broadinstitute.hellbender.utils.variant.GATKVCFConstants;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Allele-specific call confidence normalized by depth of sample reads supporting the allele
@@ -118,7 +119,8 @@ public class AS_QualByDepth extends InfoFieldAnnotation implements ReducibleAnno
 
         final List<Integer> standardDepth;
         if (originalVC.hasAttribute(GATKVCFConstants.AS_VARIANT_DEPTH_KEY)) {
-            standardDepth = originalVC.getAttributeAsString(GATKVCFConstants.AS_VARIANT_DEPTH_KEY, "").split(AnnotationUtils.AS_SPLIT_REGEX);
+            standardDepth = Arrays.stream(originalVC.getAttributeAsString(GATKVCFConstants.AS_VARIANT_DEPTH_KEY, "")
+                    .split(AnnotationUtils.AS_SPLIT_REGEX)).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
         } else {
             standardDepth = getAlleleDepths(genotypes);
         }
